@@ -1,2 +1,112 @@
-# PandL_PowerBI
-Profit and Loss
+# P&L financial report PowerBI
+- PowerBi:
+  - PowerQuery
+  - Dax
+  - Visualisation
+---
+
+- ## Table of content
+  - [1. Introduction](#1-introduction)
+  - [2. Data import](#2-data-import)
+  - [3. Tables and data modeling](#3-tables-and-data-modeling)
+    - [3.1 Date table](#31-date-table)
+    - [3.2 Parent/Child DimAccount](#32-parentchild-dimaccount)
+    - [3.3 Parent/Child DimDepartmentGroup](#32-parentchild-dimaccount)
+    - [3.4 Parent/Child DimOrganization](#34-parentchild-dimorganization)
+## 1. Introduction
+- The AdventureWorks sample databases is open dataset with business data
+- The original dataset is available to downloard [here](https://learn.microsoft.com/en-us/sql/samples/adventureworks-install-configure?view=sql-server-ver16&tabs=ssms)
+- For this report AdventureWorksDW2022 will be used.
+## 2. Data import
+- After uploading the database backup to SSMS, you can see many tables.
+- The data could be prepared in SQL, but for the purpose of training it will be modified in PowerBI
+- Use the SQL server connector to upload tables:
+  - DimAccount
+  - DimDepartmentGroup
+  - DimOrganization
+  - DimScenario
+  - FactFinance
+## 3. Tables and data modeling
+### 3.1 Date table
+- For almost every PowerBI data model is better to create a new Date/Calendar table.
+```
+Calendar table = 
+VAR minDate =
+    MIN ( FactFinance[Date])
+VAR maxDate =
+    MAX (FactFinance[Date] )
+RETURN
+    ADDCOLUMNS (
+        CALENDAR ( minDate, maxDate ),
+        "Year", YEAR ( [Date] ),
+        "Month", FORMAT ( [Date], "MMMM" ),
+        "Month number", MONTH ( [Date] ),
+        "Calendar quarter", CONCATENATE ( "Q", QUARTER ( [Date] ) ),
+        "Calendar week", WEEKNUM ( [Date], 2 ),
+        "Day number", WEEKDAY ( [Date], 2 ),
+        "Day", FORMAT ( [Date], "DDD" )
+    )
+```
+
+- And for better connection between tables is better to create datekey column
+
+```
+Date INT = 
+YEAR ( 'Date'[Date] ) * 10000
+    + MONTH ( 'Date'[Date] ) * 100
+    + DAY ( 'Date'[Date] )
+```
+### 3.2 Parent/Child DimAccount
+1. First of all is necessary to create a Parent-cild path by DAX code:
+```
+Parent-child path =
+PATH ( DimAccount[AccountKey], DimAccount[ParentAccountKey] )
+```
+2. Create all levels of hierarchy. In this case, there are 6 levels. Only the second value in the formula changes according to the level.
+```
+Level 1 = PATHITEM(DimAccount[Parent-child path],1,INTEGER)
+```
+3. Find name by level. Only the third value in the fomula changes according to the level.
+ ```
+Level 1 name =
+LOOKUPVALUE (
+    DimAccount[AccountDescription],
+    DimAccount[AccountKey], DimAccount[Level 1]
+)
+```
+### 3.3 Parent/Child DimDepartmentGroup
+1. First of all is necessary to create a Parent-cild path by DAX code:
+```
+Parent-child path = PATH(DimDepartmentGroup[DepartmentGroupKey],DimDepartmentGroup[ParentDepartmentGroupKey])
+```
+2. Create all levels of hierarchy. In this case, there are 2 levels. Only the second value in the formula changes according to the level.
+```
+Level 1 =
+PATHITEM ( DimDepartmentGroup[Parent-child path], 1, INTEGER )
+```
+3. Find name by level. Only the third value in the fomula changes according to the level.
+```
+Level 1 name =
+LOOKUPVALUE (
+    DimDepartmentGroup[DepartmentGroupName],
+    DimDepartmentGroup[DepartmentGroupKey], DimDepartmentGroup[Level 1]
+)
+```
+### 3.4 Parent/Child DimOrganization
+1. First of all is necessary to create a Parent-cild path by DAX code:
+```
+Parent-child path = PATH(DimOrganization[OrganizationKey],DimOrganization[ParentOrganizationKey])
+```
+2. Create all levels of hierarchy. In this case, there are 4 levels. Only the second value in the formula changes according to the level.
+```
+Level 1 =
+PATHITEM (DimOrganization[Parent-child path], 1, INTEGER )
+```
+3. Find name by level. Only the third value in the fomula changes according to the level.
+```
+Level 1 name = 
+LOOKUPVALUE (
+    DimOrganization[OrganizationName],
+    DimOrganization[OrganizationKey], DimOrganization[Level 1]
+)
+```
