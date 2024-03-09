@@ -138,4 +138,4 @@ SWITCH (
 Amount with operator = RELATED(DimAccount[Sign]) * FactFinance[Amount]
 ```
 ### 3.6 Data model
-![Data model]()
+![Data model](https://github.com/OndrejZapletal99/PandL_PowerBI/blob/main/Data_model.png)
