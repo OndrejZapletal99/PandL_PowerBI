@@ -143,6 +143,6 @@ Amount with operator = RELATED(DimAccount[Sign]) * FactFinance[Amount]
 - For simplicity, the adventureworks P&L structure will retained.
 - The P&L structure is always similar but differs slightly in each company.
 - In real financial controlling , another 1-2 tables would be added, in wich the P&L structure would be defined as well as which accounts belong where.
-![First page]()
+![First page](https://github.com/OndrejZapletal99/PandL_PowerBI/blob/main/First_page.png)
 
-![Second page]()
+![Second page](https://github.com/OndrejZapletal99/PandL_PowerBI/blob/main/Second_page.png)
